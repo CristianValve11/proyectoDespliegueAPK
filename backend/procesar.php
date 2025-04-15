@@ -1,4 +1,11 @@
 <?php
+// Permitir acceso desde cualquier origen
+header("Access-Control-Allow-Origin: *");
+
+// Si necesitas admitir otros métodos o cabeceras, puedes añadir también:
+// header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+// header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
 // procesar.php - Backend PHP para procesar texto y contar frecuencia de palabras
 
 // 1. Obtener el texto enviado por POST

@@ -13,16 +13,16 @@ btnEnviar.addEventListener('click', () => {
   const formData = new FormData();
   formData.append('texto', texto);
   
-  fetch('http://localhost:8000/backend/procesar.php', {
+  fetch('http://localhost:8080/backend/procesar.php', {  // Asegúrate de usar el puerto correcto
     method: 'POST',
     body: formData
   })
     .then(response => response.json())    // 3. Parsear la respuesta JSON
     .then(data => {
       // 4. Mostrar resultados en la página
-      divResultado.innerHTML = '';  // limpiar resultados previos
+      divResultado.innerHTML = '';  // Limpiar resultados previos
       if (data.error) {
-        // Si el backend retornó un error (por ejemplo texto vacío)
+        // Si el backend retornó un error (por ejemplo, texto vacío)
         divResultado.innerHTML = `<p><b>Error:</b> ${data.error}</p>`;
       } else {
         // data es un array de objetos {palabra, frecuencia}
@@ -39,3 +39,4 @@ btnEnviar.addEventListener('click', () => {
       divResultado.innerHTML = `<p>Ocurrió un error al procesar la solicitud.</p>`;
     });
 });
+
