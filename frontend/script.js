@@ -9,34 +9,50 @@ btnEnviar.addEventListener('click', () => {
   const texto = textarea.value;
   
   // 2. Enviar el texto al backend usando fetch
-  // Construir los datos en formato formulario
   const formData = new FormData();
   formData.append('texto', texto);
   
-  fetch('http://localhost:8080/backend/procesar.php', {  // Asegúrate de usar el puerto correcto
+  fetch('http://localhost:8080/backend/procesar.php', {  
     method: 'POST',
     body: formData
   })
-    .then(response => response.json())    // 3. Parsear la respuesta JSON
+    .then(response => response.json())
     .then(data => {
-      // 4. Mostrar resultados en la página
-      divResultado.innerHTML = '';  // Limpiar resultados previos
+      // Limpiar resultados previos
+      divResultado.innerHTML = '';  
       if (data.error) {
-        // Si el backend retornó un error (por ejemplo, texto vacío)
-        divResultado.innerHTML = `<p><b>Error:</b> ${data.error}</p>`;
+        // Mostrar error con una alerta de Bootstrap
+        divResultado.innerHTML = `<div class="alert alert-danger" role="alert">
+          <strong>Error:</strong> ${data.error}
+        </div>`;
       } else {
-        // data es un array de objetos {palabra, frecuencia}
-        let resultadoHTML = '<h3>Frecuencia de Palabras:</h3><ul>';
+        // Construir la tabla con Bootstrap
+        let tableHTML = `
+          <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+              <tr>
+                <th>Palabra</th>
+                <th>Frecuencia</th>
+              </tr>
+            </thead>
+            <tbody>`;
         data.forEach(item => {
-          resultadoHTML += `<li>${item.palabra}: ${item.frecuencia}</li>`;
+          tableHTML += `
+              <tr>
+                <td>${item.palabra}</td>
+                <td>${item.frecuencia}</td>
+              </tr>`;
         });
-        resultadoHTML += '</ul>';
-        divResultado.innerHTML = resultadoHTML;
+        tableHTML += `
+            </tbody>
+          </table>`;
+        divResultado.innerHTML = tableHTML;
       }
     })
     .catch(error => {
       console.error('Error en la petición:', error);
-      divResultado.innerHTML = `<p>Ocurrió un error al procesar la solicitud.</p>`;
+      divResultado.innerHTML = `<div class="alert alert-warning" role="alert">
+        Ocurrió un error al procesar la solicitud.
+      </div>`;
     });
 });
-

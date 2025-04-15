@@ -24,3 +24,9 @@ button {
         background: #fff;
         padding: 1em;
 }
+/* añadims efecto hover */
+#resultado table tbody tr:hover {
+        font-size: 1.2em;
+        transition: font-size 0.2s ease;
+    }
+    
