@@ -21,4 +21,13 @@ public function test_normalizar(): void
     $this->assertEquals('hola mundo', $p->normalizar('HOLA MUNDO'));
 }
 
+public function test_limpiar(): void
+{
+    $p = new ProcesadorTexto(['de','la','y','el']);
+    $res = $p->limpiar('Hola, mundo!123');
+    $this->assertStringNotContainsString('1', $res);
+    $this->assertStringNotContainsString(',', $res);
+    $this->assertStringContainsString('Hola', $res);
+}
+
 }
