@@ -14,4 +14,11 @@ class ProcesadorTextoTest extends TestCase
     $this->assertEquals('arbol', $p->quitarTildes('árbol'));
     $this->assertEquals('senor', $p->quitarTildes('señor'));
 }
+
+public function test_normalizar(): void
+{
+    $p = new ProcesadorTexto(['de','la','y','el']);
+    $this->assertEquals('hola mundo', $p->normalizar('HOLA MUNDO'));
+}
+
 }
