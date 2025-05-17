@@ -30,4 +30,13 @@ public function test_limpiar(): void
     $this->assertStringContainsString('Hola', $res);
 }
 
+public function test_tokenizar(): void
+{
+    $p = new ProcesadorTexto(['de','la','y','el']);
+    $this->assertSame(
+        ['uno','dos','tres'],
+        $p->tokenizar('uno  dos   tres')
+    );
+}
+
 }
