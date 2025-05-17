@@ -17,7 +17,6 @@ class ProcesadorTexto
             'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u',
             'Ñ'=>'N','ñ'=>'n'
         ];
-        // Devuelve siempre cadena
         return strtr($texto, $map);
     }
 
@@ -28,6 +27,7 @@ class ProcesadorTexto
 
     public function limpiar(string $texto): string
     {
+        // Deja sólo letras a–z y espacios, elimina números y puntuación
         return preg_replace('/[^a-z\s]+/i', ' ', $texto);
     }
 
@@ -38,12 +38,16 @@ class ProcesadorTexto
 
     public function filtrar(array $tokens): array
     {
-        // Devuelve un array vacío si no hay tokens
-        $res = array_values(array_filter(
-            $tokens,
-            fn(string $pal) => $pal !== '' && !in_array($pal, $this->stopWords, true)
-        ));
-        return $res;
+        $resultado = [];
+        foreach ($tokens as $token) {
+            // Quitar tildes y normalizar cada palabra
+            $sinTilde = $this->quitarTildes($token);
+            $norm = $this->normalizar($sinTilde);
+            if ($norm !== '' && !in_array($norm, $this->stopWords, true)) {
+                $resultado[] = $norm;
+            }
+        }
+        return $resultado;
     }
 
     public function contar(array $tokens): array
@@ -66,3 +70,4 @@ class ProcesadorTexto
         return $this->contar($tokens);
     }
 }
+
