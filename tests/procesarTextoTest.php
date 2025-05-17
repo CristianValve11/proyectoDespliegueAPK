@@ -48,4 +48,13 @@ public function test_filtrar(): void
     );
 }
 
+public function test_contar(): void
+{
+    $p = new ProcesadorTexto(['de','la','y','el']);
+    $this->assertSame(
+        ['hola'=>2,'mundo'=>1],
+        $p->contar(['hola','mundo','hola'])
+    );
+}
+
 }
