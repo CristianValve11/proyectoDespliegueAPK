@@ -1,25 +1,17 @@
-# Proyecto Despliegue APK
-
-[![GitHub last commit](https://img.shields.io/github/last-commit/CristianValve11/proyectoDespliegueAPK?style=flat-square)](https://github.com/CristianValve11/proyectoDespliegueAPK)
-[![GitHub issues](https://img.shields.io/github/issues/CristianValve11/proyectoDespliegueAPK?style=flat-square)](https://github.com/CristianValve11/proyectoDespliegueAPK/issues)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
-
----
-
+ANGY AND CRISTIAN'S PROJECT
 ## Índice
 
-- [Proyecto Despliegue APK](#proyecto-despliegue-apk)
-  - [Índice](#índice)
-  - [Descripción](#descripción)
-  - [Características](#características)
-  - [Tecnologías Utilizadas](#tecnologías-utilizadas)
-  - [Estructura del Proyecto](#estructura-del-proyecto)
-  - [Instalación y Ejecución](#instalación-y-ejecución)
-  - [Pruebas Unitarias (PHPUnit)](#pruebas-unitarias-phpunit)
-    - [Separación en Funciones](#separación-en-funciones)
-    - [Métodos Probados Individualmente](#métodos-probados-individualmente)
-    - [Cobertura de Código (Coverage)](#cobertura-de-código-coverage)
-  - [Git Flow y Hooks](#git-flow-y-hooks)
+- [Índice](#índice)
+- [Descripción](#descripción)
+- [Características](#características)
+- [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Instalación y Ejecución](#instalación-y-ejecución)
+- [Pruebas Unitarias (PHPUnit)](#pruebas-unitarias-phpunit)
+  - [Separación en Funciones](#separación-en-funciones)
+  - [Métodos Probados Individualmente](#métodos-probados-individualmente)
+  - [Cobertura de Código (Coverage)](#cobertura-de-código-coverage)
+- [Git Flow y Hooks](#git-flow-y-hooks)
 
 ---
 
