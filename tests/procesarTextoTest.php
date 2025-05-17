@@ -39,4 +39,13 @@ public function test_tokenizar(): void
     );
 }
 
+public function test_filtrar(): void
+{
+    $p = new ProcesadorTexto(['de','la','y','el']);
+    $this->assertSame(
+        ['casa','arbol'],
+        $p->filtrar(['de','casa','la','árbol'])
+    );
+}
+
 }
