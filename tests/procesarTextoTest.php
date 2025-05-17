@@ -57,4 +57,11 @@ public function test_contar(): void
     );
 }
 
+public function test_pipelineCompleto(): void
+{
+    $p = new ProcesadorTexto(['de','la','y','el']);
+    $freq = $p->procesar('¡Árbol, árbol! de la ÁRBOL.');
+    $this->assertEquals(3, $freq['arbol']);
+}
+
 }
