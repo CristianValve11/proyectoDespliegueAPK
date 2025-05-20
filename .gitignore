@@ -1,0 +1,11 @@
+# Ignorar dependencias de Composer
+/vendor/
+
+# Ignorar el lock de Composer
+/composer.lock
+
+# Ignorar fichero de entorno
+.env
+
+# Ignorar el cache
+/.phpunit.result.cache
