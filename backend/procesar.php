@@ -1,80 +1,131 @@
 <?php
-// Permitir acceso desde cualquier origen
-header("Access-Control-Allow-Origin: *");
+// backend/ProcesadorTexto.php
 
-// Si necesitas admitir otros métodos o cabeceras, puedes añadir también:
-// header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-// header("Access-Control-Allow-Headers: Content-Type, Authorization");
+/**
+ * Clase ProcesadorTexto: contiene todas las funciones de procesado y actua en modo API cuando se accede via HTTP
+ */
+class ProcesadorTexto
+{
+    private array $stopWords;
 
-// procesar.php - Backend PHP para procesar texto y contar frecuencia de palabras
-
-// 1. Obtener el texto enviado por POST
-$textoOriginal = $_POST['texto'] ?? '';  // Usa el parámetro 'texto' del POST, o cadena vacía si no existe
-
-// Opcional: comprobar que no esté vacío
-if (trim($textoOriginal) === '') {
-    // Si no hay texto, devolvemos un JSON con error (o podríamos devolver simplemente nada)
-    $respuestaError = ["error" => "No se proporcionó texto"];
-    header('Content-Type: application/json');
-    echo json_encode($respuestaError);
-    exit; // terminamos la ejecución
-}
-
-// 2. Normalizar el texto: convertir a minúsculas y eliminar puntuación
-$minusculas = mb_strtolower($textoOriginal, 'UTF-8');  // convierte a minúsculas (compatible UTF-8 para Ñ, acentos, etc.)
-
-// Eliminar signos de puntuación usando una expresión regular:
-// Reemplazamos cualquier carácter que NO sea letra (\p{L}), número (\p{N}) o espacio (\s) por un espacio.
-$textoLimpio = preg_replace('/[^\p{L}\p{N}\s]+/u', ' ', $minusculas);
-
-// 3. Separar el texto en palabras individuales (tokenización)
-$palabras = preg_split('/\s+/', $textoLimpio, -1, PREG_SPLIT_NO_EMPTY);
-// Ahora $palabras es un array de todas las palabras (separadas por espacios) en el texto, en minúsculas y sin puntuación.
-
-// 4. Filtrar las stop words (palabras vacías comunes que no interesan en el conteo)
-$stopwords = [
-    "de","la","que","el","en","y","a","los","del","se","las","por","un","para","con",
-    "no","una","su","al","lo","como","más","pero","sus","le","ya","o","este","es","sí",
-    "porque","esta","entre","cuando","muy","sin","sobre","también","me","hasta","hay",
-    "donde","quien","desde","todo","nos","durante","todos","uno","les","ni","contra",
-    "otros","ese","esa","eso","ante","ellos","e","esto","mí","antes","algunos","qué",
-    "unos","yo","otro","otras","otra","él","tanto","esa","estos","mucho","quienes",
-    "nada","muchos","cuales","poco","ella","estar","estas","algo","nosotros","mi",
-    "mis","tú","te","ti","tu","tus","ellas","nosotras","vosotros","vosotras","si",
-    "cierto"
-];
-// Nota: Esta es una lista parcial de stop words en español basada en fuentes comunes&#8203;:contentReference[oaicite:9]{index=9}.
-// Se pueden agregar más palabras a la lista según el enlace proporcionado u otras listas reconocidas de palabras vacías.
-
-$palabrasFiltradas = [];
-foreach ($palabras as $palabra) {
-    if ($palabra === '' || in_array($palabra, $stopwords)) {
-        // Si la palabra está vacía (cadena vacía) o es una stop word, la saltamos
-        continue;
+    /**
+     * Constructor recibe array de stop words
+     */
+    public function __construct(array $stopWords)
+    {
+        $this->stopWords = $stopWords;
     }
-    $palabrasFiltradas[] = $palabra;
-}
 
-// 5. Contar la frecuencia de cada palabra en $palabrasFiltradas
-$frecuencias = [];  // array asociativo: palabra -> conteo
-foreach ($palabrasFiltradas as $palabra) {
-    if (isset($frecuencias[$palabra])) {
-        $frecuencias[$palabra]++;       // si ya existe en el array, incrementar contador
-    } else {
-        $frecuencias[$palabra] = 1;     // si no existe, iniciarlo en 1
+    /**
+     * Quita tildes y dieresis del texto
+     */
+    public function quitarTildes(string $texto): string
+    {
+        $map = [
+            'Á'=>'A','É'=>'E','Í'=>'I','Ó'=>'O','Ú'=>'U',
+            'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u',
+            'Ñ'=>'N','ñ'=>'n'
+        ];
+        return strtr($texto, $map);
+    }
+
+    /**
+     * Convierte a minusculas UTF-8
+     */
+    public function normalizar(string $texto): string
+    {
+        return mb_strtolower($texto, 'UTF-8');
+    }
+
+    /**
+     * Elimina todo lo que no sea letra o espacio (descarta numeros y signos)
+     */
+    public function limpiar(string $texto): string
+    {
+        return preg_replace('/[^a-z\s]+/i', ' ', $texto);
+    }
+
+    /**
+     * Separa el texto en tokens (palabras)
+     */
+    public function tokenizar(string $texto): array
+    {
+        return preg_split('/\s+/', trim($texto), -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    /**
+     * Filtra stop words tras quitar tildes y normalizar
+     */
+    public function filtrar(array $tokens): array
+    {
+        $resultado = [];
+        foreach ($tokens as $t) {
+            $sin = $this->quitarTildes($t);
+            $norm = $this->normalizar($sin);
+            if ($norm !== '' && !in_array($norm, $this->stopWords, true)) {
+                $resultado[] = $norm;
+            }
+        }
+        return $resultado;
+    }
+
+    /**
+     * Cuenta la frecuencia de cada token
+     */
+    public function contar(array $tokens): array
+    {
+        $freq = [];
+        foreach ($tokens as $t) {
+            $freq[$t] = ($freq[$t] ?? 0) + 1;
+        }
+        arsort($freq);
+        return $freq;
+    }
+
+    /**
+     * Orquesta todo el pipeline de procesado
+     */
+    public function procesar(string $texto): array
+    {
+        $t = $this->quitarTildes($texto);
+        $t = $this->normalizar($t);
+        $t = $this->limpiar($t);
+        $tokens = $this->tokenizar($t);
+        $tokens = $this->filtrar($tokens);
+        return $this->contar($tokens);
     }
 }
 
-// 6. Ordenar las palabras por frecuencia de mayor a menor
-arsort($frecuencias);  // ordena el array asociativo por valores en orden descendente, manteniendo la asociación con la palabra
+// Si se accede via web (no CLI), actuamos como API REST
+if (php_sapi_name() !== 'cli') {
+    header('Content-Type: application/json; charset=UTF-8');
 
-// 7. Preparar el resultado en formato JSON
-$resultado = [];  // será un array de objetos con palabra y frecuencia
-foreach ($frecuencias as $palabra => $count) {
-    $resultado[] = ["palabra" => $palabra, "frecuencia" => $count];
+    $textoOriginal = $_POST['texto'] ?? '';
+    if (trim($textoOriginal) === '') {
+        echo json_encode(['error' => 'No se proporciono texto']);
+        exit;
+    }
+
+    // definicion de stop words
+    $sw = [
+        'de','la','que','el','en','y','a','los','del','se','las','por','un','para','con',
+        'no','una','su','al','lo','como','mas','pero','sus','le','ya','o','este','es','si',
+        'porque','esta','entre','cuando','muy','sin','sobre','tambien','me','hasta','hay',
+        'donde','quien','desde','todo','nos','durante','todos','uno','les','ni','contra',
+        'otros','ese','esa','eso','ante','ellos','e','esto','mi','antes','algunos','que',
+        'unos','yo','otro','otras','otra','el','tanto','esa','estos','mucho','quienes',
+        'nada','muchos','cuales','poco','ella','estar','estas','algo','nosotros','mi','mis',
+        'tu','te','ti','tus','ellas','nosotras','vosotros','vosotras','si','cierto'
+    ];
+
+    $proc = new ProcesadorTexto($sw);
+    $freq = $proc->procesar($textoOriginal);
+
+    // formateo de respuesta
+    $out = [];
+    foreach ($freq as $pal => $cnt) {
+        $out[] = ['palabra' => $pal, 'frecuencia' => $cnt];
+    }
+
+    echo json_encode($out);
 }
-
-// 8. Devolver el JSON resultante
-header('Content-Type: application/json');            // indicar al cliente que se responde con JSON
-echo json_encode($resultado);
-?>
