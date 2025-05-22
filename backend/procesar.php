@@ -48,7 +48,7 @@ class ProcesadorTexto
      */
     public function limpiar(string $texto): string
     {
-        return preg_replace('/[^a-z\\s]+/i', ' ', $texto);
+        return preg_replace('/[^a-z\s]+/i', ' ', $texto);
     }
 
     /**
@@ -56,7 +56,7 @@ class ProcesadorTexto
      */
     public function tokenizar(string $texto): array
     {
-        return preg_split('/\\s+/', trim($texto), -1, PREG_SPLIT_NO_EMPTY);
+        return preg_split('/\s+/', trim($texto), -1, PREG_SPLIT_NO_EMPTY);
     }
 
     /**
@@ -107,13 +107,26 @@ class ProcesadorTexto
 if (php_sapi_name() !== 'cli') {
     header('Content-Type: application/json; charset=UTF-8');
 
+    // 1. Leer texto crudo desde POST
     $texto = $_POST['texto'] ?? '';
+    //CODIFICACION
+    // 2. Detectar codificacion de entrada y convertir a UTF-8
+    $encoding = mb_detect_encoding(
+        $texto,
+        ['UTF-8','ISO-8859-1','Windows-1252','ASCII'],
+        true
+    );
+    if ($encoding !== 'UTF-8' && $encoding !== false) {
+        $texto = mb_convert_encoding($texto, 'UTF-8', $encoding);
+    }
+
+    // 3. Validar que hay texto
     if (trim($texto) === '') {
         echo json_encode(['error' => 'No se proporcionó texto']);
         exit;
     }
 
-    // Lista de stop words en minusculas
+    // 4. Lista de stop words en minusculas
     $sw = [
         'de','la','que','el','en','y','a','los','del','se','las',
         'por','un','para','con','no','una','su','al','lo','como',
@@ -128,13 +141,15 @@ if (php_sapi_name() !== 'cli') {
         'vosotros','vosotras','si','cierto'
     ];
 
+    // 5. Procesar y devolver JSON
     $proc = new ProcesadorTexto($sw);
     $freq = $proc->procesar($texto);
 
-    // Formateo JSON
     $out = [];
     foreach ($freq as $pal => $cnt) {
         $out[] = ['palabra' => $pal, 'frecuencia' => $cnt];
     }
+
     echo json_encode($out);
+    exit;
 }
