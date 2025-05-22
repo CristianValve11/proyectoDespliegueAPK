@@ -6,3 +6,6 @@
 
 # Ignorar fichero de entorno
 .env
+
+# Ignorar el cache
+/.phpunit.result.cache
